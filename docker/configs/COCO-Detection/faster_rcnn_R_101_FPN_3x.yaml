@@ -1,0 +1,24 @@
+_BASE_: "../Base-RCNN-FPN.yaml"
+MODEL:
+  WEIGHTS: "/home/asd/Mission/GaoFen/bridge_new/baselines/FasterRCNN/R101-FPN/model_final_f6e8b1.pkl"
+  MASK_ON: False
+  RESNETS:
+    DEPTH: 101
+  ROI_HEADS:
+    SCORE_THRESH_TEST: 0.05
+SOLVER:
+  MAX_ITER: 6000
+  CHECKPOINT_PERIOD: 1000 # 保存间隔
+  IMS_PER_BATCH: 12
+  BASE_LR: 0.02
+  STEPS: (60000, 80000)
+TEST:
+  EVAL_PERIOD: 1000 #每1000个迭代评估验证集一次
+DATASETS:
+  TRAIN: ("bridge_dataset_train",)
+  TEST: ("bridge_dataset_test",)
+INPUT:
+  MIN_SIZE_TRAIN: (640, 672, 704, 736, 768, 800)
+  # 预测时候resize
+  # MIN_SIZE_TEST:()
+  # MAX_SIZE_TEST: 

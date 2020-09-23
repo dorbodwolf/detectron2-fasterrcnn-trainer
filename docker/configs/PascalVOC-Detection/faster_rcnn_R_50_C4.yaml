@@ -1,0 +1,40 @@
+_BASE_: "../Base-RCNN-C4.yaml"
+MODEL:
+  DEVICE: "cuda"
+  WEIGHTS: "/home/asd/Mission/GaoFen/bridge_new/baselines/ResNet/R-50.pkl"
+  MASK_ON: False
+  RESNETS:
+    DEPTH: 50
+  ROI_HEADS:
+    SCORE_THRESH_TEST: 0.3
+    NUM_CLASSES: 1
+  PIXEL_MEAN: [102, 101, 94.6]
+  PIXEL_STD: [1.0, 1.0, 1.0]
+INPUT:
+  FORMAT: "BGR"
+  MIN_SIZE_TRAIN: (640, 900)
+  MIN_SIZE_TRAIN_SAMPLING: "range"
+  MAX_SIZE_TRAIN: 1001
+  MIN_SIZE_TEST: 0
+  MAX_SIZE_TEST: 0
+  # CROP: CN({"ENABLED": True})
+  # CROP:
+  #   TYPE: "relative_range"
+  #   SIZE: [0.8, 0.8]
+DATASETS:
+  TRAIN: ("bridge_dataset_train",)
+  TEST: ("bridge_dataset_test",)
+SOLVER:
+  MAX_ITER: 12000  # 17.4 epochs
+  BASE_LR: 0.002
+  GAMMA: 0.1
+  STEPS: (9000,)
+
+  WARMUP_FACTOR: 0.001
+  WARMUP_ITERS: 500
+  WARMUP_METHOD: "linear"
+
+  CHECKPOINT_PERIOD: 2000
+  IMS_PER_BATCH: 9
+TEST:
+  EVAL_PERIOD: 1000
