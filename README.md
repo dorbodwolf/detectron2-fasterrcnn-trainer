@@ -1,2 +1,0 @@
-# detectron2-fasterrcnn-trainer
-基于detectron2框架的fasterrcnn目标检测训练器，包括对detectron2的魔改
