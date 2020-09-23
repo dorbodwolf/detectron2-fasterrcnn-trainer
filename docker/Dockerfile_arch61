@@ -1,0 +1,65 @@
+ARG CUDA="10.0"
+ARG CUDNN="7"
+FROM nvidia/cuda:${CUDA}-cudnn${CUDNN}-devel-ubuntu16.04
+
+RUN echo 'debconf debconf/frontend select Noninteractive' | debconf-set-selections
+
+# install basics
+RUN apt-get update -y \
+ && apt-get install -y apt-utils git curl ca-certificates bzip2 cmake tree htop bmon iotop g++ \
+ && apt-get install -y libglib2.0-0 libsm6 libxext6 libxrender-dev wget zlib1g zlib1g-dev \
+&& apt-get update -y
+
+RUN  apt-get install -y libssl-dev
+
+RUN cd /opt && \
+    wget https://mirrors.huaweicloud.com/python/3.6.9/Python-3.6.9.tgz && \
+    tar -xvf Python-3.6.9.tgz && \
+    cd Python-3.6.9 && \
+    ./configure && make  && make install && python3 --version
+# RUN python3 --version
+# RUN apt install python3-venv python3-pip
+# RUN apt install python3-pip
+# RUN curl https://bootstrap.pypa.io/get-pip.py -o get-pip.py && \
+#     python3 get-pip.py && \
+# RUN  pip3 --version
+# 修改pip的下载源
+RUN pip3 config set global.index-url https://pypi.douban.com/simple/ && \
+    pip3 config set install.trusted-host mirrors.aliyun.com
+
+# RUN conda install -y ipython
+RUN pip3 install  -i https://pypi.douban.com/simple/ ninja yacs cython matplotlib opencv-python tqdm
+
+# RUN conda install GDAL
+
+# Install PyTorch 1.0 Nightly
+ARG CUDA
+#RUN conda install pytorch cudatoolkit=${CUDA} -c pytorch \
+# && conda clean -ya
+RUN pip3 install -i https://pypi.douban.com/simple/ torch==1.4.0 && \
+    pip3 install  -i https://pypi.douban.com/simple/ torchvision==0.5.0
+
+# install pycocotools
+RUN git clone https://github.com/cocodataset/cocoapi.git \
+ && cd cocoapi/PythonAPI \
+ && python3 setup.py build_ext install
+
+# install PyTorch Detection
+ARG FORCE_CUDA="1"
+ENV FORCE_CUDA=${FORCE_CUDA}
+RUN git clone https://github.com/facebookresearch/maskrcnn-benchmark.git \
+ && cd maskrcnn-benchmark \
+ && python3 setup.py build develop
+
+RUN python3 -m pip install 'git+https://github.com/facebookresearch/detectron2.git'
+
+# 解析xml包
+RUN pip3 install -i https://pypi.douban.com/simple/ lxml
+
+# RUN conda clean -y --all
+
+COPY .  /workspace
+
+WORKDIR /workspace
+
+CMD ["python3", "docker_test_gaofen.py"]
